@@ -1,5 +1,7 @@
 package types
 
+import "net/url"
+
 type Response struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
@@ -48,4 +50,19 @@ type IntrospectionResponse struct {
     Aud       []string `json:"aud"`
     Iss       string   `json:"iss"`
     Jti       string   `json:"jti"`
+}
+
+type TokenResponse struct {
+    AccessToken  string `json:"access_token"`
+    TokenType    string `json:"token_type"`
+    ExpiresIn    int    `json:"expires_in"`
+    RefreshToken string `json:"refresh_token"`
+    IdToken      string `json:"id_token"`
+}
+
+type HttpRequest struct {
+    URL     string
+    Method  string
+    Data    url.Values
+    Headers map[string]string
 }

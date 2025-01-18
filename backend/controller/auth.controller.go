@@ -5,30 +5,11 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
-
+    "github.com/lahiruramesh/constants"
 	"github.com/lahiruramesh/config"
-	"github.com/lahiruramesh/service"
 	"github.com/lahiruramesh/types"
+    "github.com/lahiruramesh/utils"
 )
-
-func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
-   
-    response := types.Response{
-        Status:  "success",
-        Message: "Service is healthy",
-    }
-    json.NewEncoder(w).Encode(response)
-}
-
-type TokenResponse struct {
-    AccessToken  string `json:"access_token"`
-    TokenType    string `json:"token_type"`
-    ExpiresIn    int    `json:"expires_in"`
-    RefreshToken string `json:"refresh_token"`
-    IdToken      string `json:"id_token"`
-}
-
 
 func OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
     cf := config.LoadConfig()
@@ -41,35 +22,28 @@ func OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
     clientID := cf.ZitadelCLientID
     clientSecret := cf.ZitadelClientSecret
     authCallBackUrl := cf.AuthCallbackURL
-    basicAuthorization := service.GetBasicAuthCredentials(clientID, clientSecret)
+    basicAuthorization := utils.GetBasicAuthCredentials(clientID, clientSecret)
 
     data := url.Values{}
-    data.Set("grant_type", "authorization_code")
+    data.Set("grant_type", constants.OAUTH_GRANT_TYPE_AUTHORIZATION_CODE)
     data.Set("code", code)
     data.Set("redirect_uri",authCallBackUrl)
-    oauthTokenUrl := service.GetZitadelURL("oauth/v2/token")
+    oauthTokenUrl := utils.GetZitadelURL(constants.OAUTH_TOKEN_PATH)
 
-    req, err := http.NewRequest("POST", 
-        oauthTokenUrl,
-        strings.NewReader(data.Encode()))
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
+    headers := map[string]string{
+        "Content-Type":  constants.HEADER_URL_ENCODED,
+        "Authorization": basicAuthorization,
     }
 
-    req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-    req.Header.Add("Authorization", basicAuthorization)
-
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
+    req := types.HttpRequest{
+        URL:    oauthTokenUrl,
+        Method: http.MethodPost,
+        Data:   data,
+        Headers: headers,
     }
-    defer resp.Body.Close()
 
-    var tokenResp TokenResponse
-    if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
+    tokenResp, err := utils.MakeRequest[types.TokenResponse](req)
+    if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
@@ -81,6 +55,24 @@ func OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
     http.Redirect(w, r, frontendCallback, http.StatusTemporaryRedirect)
 }
 
+func AuthHandler(w http.ResponseWriter, r *http.Request) {
+    cf := config.LoadConfig()
+
+    username := r.URL.Query().Get("username")
+    authURL := fmt.Sprintf(
+        "https://%s/oauth/v2/authorize?client_id=%s&redirect_uri=%s&response_type=code&scope=%s&login_hint=%s",
+        cf.ZitadelDomain,
+        cf.ZitadelCLientID,
+        url.QueryEscape(cf.AuthCallbackURL),
+        url.QueryEscape("openid profile email"),
+        url.QueryEscape(username),
+    )
+    
+    w.Header().Set("Content-Type", constants.HEADER_APPLICATION_JSON)
+    json.NewEncoder(w).Encode(map[string]string{
+        "redirectUrl": authURL,
+    })
+}
 
 func AllowedUsers(w http.ResponseWriter, r *http.Request) {
     // TODO: Implement the function to get users from roles from Auth Service
@@ -127,4 +119,14 @@ func AllowedUsers(w http.ResponseWriter, r *http.Request) {
     }
     
     json.NewEncoder(w).Encode(response)   
+}
+
+// TODO: Move to a separate file
+func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
+   
+    response := types.Response{
+        Status:  "success",
+        Message: "Service is healthy",
+    }
+    json.NewEncoder(w).Encode(response)
 }
