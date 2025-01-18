@@ -1,0 +1,11 @@
+backend/tmp/*
+backend/.env
+
+backend/vendor/*
+
+backend/bin/*
+ 
+// ignore key files
+backend/*.json
+
+sample
