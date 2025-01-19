@@ -3,6 +3,7 @@ package constants
 const (
 	OAUTH_TOKEN_PATH = "oauth/v2/token"
 	OAUTH_INTROSPECT_PATH = "oauth/v2/introspect"
+	OAUTH_USERINFO_PATH = "oidc/v1/userinfo"
 	OAUTH_GRANT_TYPE_AUTHORIZATION_CODE = "authorization_code"
 
 

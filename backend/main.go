@@ -2,37 +2,36 @@ package main
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
 	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 	"net/http"
 
 	"github.com/lahiruramesh/config"
 	"github.com/lahiruramesh/middleware"
 	"github.com/lahiruramesh/routes"
-	
 )
 
 func main() {
 	config := config.LoadConfig()
 	corsHandler := handlers.CORS(
-        handlers.AllowedHeaders([]string{
-            "Authorization",
-            "Content-Type",
-            "X-Requested-With",
-            "Accept",
-            "Origin",
-        }),
-        handlers.AllowedMethods([]string{
-            "GET",
-            "POST",
-            "PUT",
-            "DELETE",
-            "OPTIONS",
-        }),
-        handlers.AllowedOrigins([]string{"http://localhost:5173"}),
-        handlers.AllowCredentials(),
-        handlers.ExposedHeaders([]string{"Authorization"}),
-    )
+		handlers.AllowedHeaders([]string{
+			"Authorization",
+			"Content-Type",
+			"X-Requested-With",
+			"Accept",
+			"Origin",
+		}),
+		handlers.AllowedMethods([]string{
+			"GET",
+			"POST",
+			"PUT",
+			"DELETE",
+			"OPTIONS",
+		}),
+		handlers.AllowedOrigins([]string{"http://localhost:5173"}),
+		handlers.AllowCredentials(),
+		handlers.ExposedHeaders([]string{"Authorization"}),
+	)
 	router := mux.NewRouter()
 	router.Use(middleware.LoggerMiddleware)
 	handler := corsHandler(router)

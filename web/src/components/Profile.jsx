@@ -19,7 +19,7 @@ export function Profile() {
                 Authorization: `Bearer ${token}`,
             },
         });
-        setProfile(response.data);
+        setProfile(response.data.results);
       } catch (error) {
         console.error('Failed to fetch profile:', error);
       }

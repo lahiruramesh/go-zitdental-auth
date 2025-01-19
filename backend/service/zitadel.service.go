@@ -42,4 +42,24 @@ func VerifyToken(tokenString string) (bool, error) {
     return resp.Active, nil
 }
 
+func GetProfile(accessToken string) (*types.Profile, error) {
+    headers := map[string]string{
+        "Content-Type":  constants.HEADER_APPLICATION_JSON,
+        "Accept": constants.HEADER_APPLICATION_JSON,
+        "Authorization": "Bearer " + accessToken,
+    }
+    url := utils.GetZitadelURL(constants.OAUTH_USERINFO_PATH)
 
+    req := types.HttpRequest{
+        URL:     url,
+        Method:  http.MethodGet,
+        Headers: headers,
+    }
+
+    profile, err := utils.MakeRequest[types.Profile](req)
+    if err != nil {
+        return nil, fmt.Errorf("failed to get user profile: %w", err)
+    }
+
+    return profile, nil
+}

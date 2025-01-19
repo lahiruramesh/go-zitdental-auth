@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+    "context"
 
 	"github.com/lahiruramesh/service"
     "github.com/lahiruramesh/constants"
+    "github.com/lahiruramesh/types"
 )
 
 func CheckAuthentication(next http.Handler) http.Handler {
@@ -33,6 +35,7 @@ func CheckAuthentication(next http.Handler) http.Handler {
             return
         }
 
-        next.ServeHTTP(w, r)
+        ctx := context.WithValue(r.Context(), types.TokenContextKey, tokenString)
+        next.ServeHTTP(w, r.WithContext(ctx))
     })
 }
