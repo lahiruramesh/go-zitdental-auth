@@ -83,15 +83,6 @@ func AllowedUsers(w http.ResponseWriter, r *http.Request) {
     // Security Check passing sensitive data with masking
     users := []types.UserProfile{
         {
-            ID:          "user1",
-            Username:    "ab",
-            Email:       "john.doe@example.com",
-            FirstName:   "John",
-            LastName:    "Doe",
-            DisplayName: "John Doe",
-            Roles:       []string{"user", "admin"},
-        },
-        {
             ID:          "user2",
             Username:    "ab",
             Email:       "jane.smith@example.com",
@@ -102,11 +93,11 @@ func AllowedUsers(w http.ResponseWriter, r *http.Request) {
         },
         {
             ID:          "user3",
-            Username:    "ab",
-            Email:       "jane.smith@example.com",
-            FirstName:   "James",
-            LastName:    "Bond",
-            DisplayName: "James Bond",
+            Username:    "andrew_s",
+            Email:       "andrew_s@gmail.com",
+            FirstName:   "Andrew",
+            LastName:    "Simon",
+            DisplayName: "Andrew Simon",
             Roles:       []string{"user"},
         },
     }

@@ -1,16 +1,15 @@
 import { useState } from 'react';
 import { axiosInstance } from '../utils/axios-instance';
 
-export function UserLogin({ user, onLogin }) {
+export function UserLogin({ user }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axiosInstance.get('/auth/login?username=ab');
-        window.location.href = response.data.redirectUrl;
-      //onLogin(response.data);
+      const response = await axiosInstance.get(`/auth/login?username=${user.username}`);
+      window.location.href = response.data.redirectUrl;
     } catch (error) {
       setError('Invalid credentials');
     }
@@ -24,10 +23,11 @@ export function UserLogin({ user, onLogin }) {
             {user.firstName.charAt(0).toUpperCase() + user.lastName.charAt(0).toUpperCase()}
           </span>
         </div>
+        {user.firstName} {user.lastName}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
+        {/* <div>
           <label className="block text-sm font-medium">Password</label>
           <input
             type="password"
@@ -35,7 +35,7 @@ export function UserLogin({ user, onLogin }) {
             onChange={(e) => setPassword(e.target.value)}
             className="mt-1 block w-full px-3 py-2 border rounded-md"
           />
-        </div>
+        </div> */}
         {error && <div className="text-red-500">{error}</div>}
         <button
           type="submit"

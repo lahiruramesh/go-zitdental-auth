@@ -1,32 +1,31 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { axiosInstance } from '../utils/axios-instance';
+import { useAuth } from '../hooks/useAuth';
+
 
 export function Profile() {
   const [profile, setProfile] = useState(null);
-  const navigate = useNavigate();
+  const token = useAuth();
+
+  const fetchProfile = async () => {
+    try {
+
+      const response = await axiosInstance.get('/profile', {
+          headers: {
+              Authorization: `Bearer ${token}`,
+          },
+      });
+      setProfile(response.data.results);
+    } catch (error) {
+      console.error('Failed to fetch profile:', error);
+      //navigate('/login');
+      // alert('You are not logged in', error);
+    }
+  };
 
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      return;
-    }
-    // TODO: Move to common place
-    const fetchProfile = async () => {
-      try {
-        const response = await axiosInstance.get('/profile', {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        setProfile(response.data.results);
-      } catch (error) {
-        console.error('Failed to fetch profile:', error);
-      }
-    };
-
     fetchProfile();
-  }, [navigate]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
